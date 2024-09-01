@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funky Fitness Tracker v2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Roboto:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4, #ffecd2);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .container {
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            max-width: 90%;
+            width: 400px;
+        }
+
+        #number-display {
+            font-family: 'Bangers', cursive;
+            font-size: 6rem;
+            margin: 2rem 0;
+            color: #FF1493;
+            text-shadow: 2px 2px 0px #FFD700;
+            animation: pulse 1.5s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from {
+                transform: scale(1);
+            }
+
+            to {
+                transform: scale(1.05);
+            }
+        }
+
+        .exercise-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .exercise-btn {
+            font-family: 'Bangers', cursive;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.1);
+            width: 80px;
+            height: 80px;
+            background-color: #00CED1;
+            color: white;
+            box-shadow: 0 4px 0px #008B8B;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0.5rem;
+            line-height: 1.2;
+        }
+
+        .exercise-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0px #008B8B;
+        }
+
+        .exercise-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0px #008B8B;
+        }
+
+        .exercise-btn.selected {
+            background-color: #FF69B4;
+            box-shadow: 0 4px 0px #C71585;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .control-btn {
+            font-family: 'Bangers', cursive;
+            font-size: 2rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.1);
+            width: 60px;
+            height: 60px;
+            background-color: #32CD32;
+            color: white;
+            box-shadow: 0 4px 0px #228B22;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0px #228B22;
+        }
+
+        .control-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0px #228B22;
+        }
+
+        .submit-btn {
+            font-family: 'Bangers', cursive;
+            font-size: 1.5rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem 2rem;
+            background-color: #FF4500;
+            color: white;
+            box-shadow: 0 4px 0px #B22222;
+            border-radius: 25px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0px #B22222;
+        }
+
+        .submit-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0px #B22222;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="exercise-buttons">
+            <button class="exercise-btn" data-exercise="chest-press">Chest Press</button>
+            <button class="exercise-btn" data-exercise="shoulder-press">Shoulder Press</button>
+            <button class="exercise-btn" data-exercise="lat-pulldown">Lat Pulldown</button>
+            <button class="exercise-btn" data-exercise="deadlift">Deadlift</button>
+            <button class="exercise-btn" data-exercise="squat-count">Squat Count</button>
+            <button class="exercise-btn" data-exercise="plank">Plank</button>
+            <button class="exercise-btn" data-exercise="weighted-squat">Weighted Squat</button>
+        </div>
+        <div id="number-display">0</div>
+        <div class="controls">
+            <button class="control-btn" id="decrease-btn">-</button>
+            <button class="control-btn" id="increase-btn">+</button>
+        </div>
+        <button class="submit-btn" id="submit-btn" onclick="sendPostRequest()">Submit</button>
+    </div>
+
+    <script>
+        const exercises = {
+            'chest-press': { value: 0, unit: 'kg', id: 'B' },
+            'deadlift': { value: 0, unit: 'kg', id: 'C' },
+            'shoulder-press': { value: 0, unit: 'kg', id: 'D' },
+            'lat-pulldown': { value: 0, unit: 'kg', id: 'E' },
+            'squat-count': { value: 0, unit: '', id: 'F' },
+            'plank': { value: 0, unit: 'kg', id: 'G' },
+            'weighted-squat': { value: 0, unit: 'kg', id: 'H' }
+        };
+
+        let selectedExercise = null;
+
+        const numberDisplay = document.getElementById('number-display');
+        const decreaseBtn = document.getElementById('decrease-btn');
+        const increaseBtn = document.getElementById('increase-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const exerciseButtons = document.querySelectorAll('.exercise-btn');
+
+        function updateNumberDisplay() {
+            if (selectedExercise) {
+                const { value, unit } = exercises[selectedExercise];
+                numberDisplay.textContent = `${value}${unit ? ' ' + unit : ''}`;
+            }
+        }
+
+        function changeValue(increment) {
+            if (selectedExercise) {
+                exercises[selectedExercise].value = Math.max(0, exercises[selectedExercise].value + increment);
+                updateNumberDisplay();
+            }
+        }
+
+        function selectExercise(exercise) {
+            selectedExercise = exercise;
+            exerciseButtons.forEach(btn => {
+                if (btn.dataset.exercise === exercise) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+            updateNumberDisplay();
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('fitnessData', JSON.stringify(exercises));
+        }
+
+        function loadFromLocalStorage() {
+            const savedData = localStorage.getItem('fitnessData');
+            if (savedData) {
+                Object.assign(exercises, JSON.parse(savedData));
+            }
+        }
+
+        increaseBtn.addEventListener('click', () => changeValue(1));
+        decreaseBtn.addEventListener('click', () => changeValue(-1));
+
+        exerciseButtons.forEach(btn => {
+            btn.addEventListener('click', () => selectExercise(btn.dataset.exercise));
+        });
+
+        submitBtn.addEventListener('click', () => {
+            saveToLocalStorage();
+            alert('Data saved successfully!');
+        });
+
+        // Load data from local storage when the app opens
+        loadFromLocalStorage();
+
+        // Select the first exercise by default
+        selectExercise('chest-press');
+
+        function sendPostRequest() {
+            let value = exercises[selectedExercise].value;
+            let buttonId = exercises[selectedExercise].id;
+            let date1 = new Date("2024-08-03");
+            let date2 = new Date();
+            let diffTime = Math.abs(date2 - date1);
+            let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            let rowNumber = diffDays + 11;
+
+            fetch('https://script.google.com/macros/s/AKfycbwobwTOZ_jT70ATYgGXSex96eYxOJ-RaO73uMpR_RLk0TkWn5TjZ1FQHRtjHtzAoWtCvA/exec?gid=1197468213&cell=' + buttonId + rowNumber + "&value=" + value), {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Origin': 'http://localhost'
+                }
+            }
+        }
+
+    </script>
+</body>
+
+</html>
