@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Increment Decrement and POST Request</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        input {
+            width: 100px;
+            text-align: center;
+        }
+        button {
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="input-group">
+        <button onclick="decrement()">-</button>
+        <input type="number" id="numberInput" value="0.00" step="0.05">
+        <button onclick="increment()">+</button>
+    </div>
+    <button onclick="sendPostRequest('B')">Button 1</button>
+    <button onclick="sendPostRequest('C')">Button 2</button>
+    <button onclick="sendPostRequest('D')">Button 3</button>
+</div>
+
+<script>
+    function increment() {
+        let input = document.getElementById('numberInput');
+        input.value = (parseFloat(input.value) + 0.05).toFixed(2);
+    }
+
+    function decrement() {
+        let input = document.getElementById('numberInput');
+        input.value = (parseFloat(input.value) - 0.05).toFixed(2);
+    }
+
+    function sendPostRequest(buttonId) {
+        let value = document.getElementById('numberInput').value;
+        let data = { buttonId: buttonId, value: value };
+        let date1 = new Date("2024-08-03");
+        let date2 = new Date();
+        let diffTime = Math.abs(date2 - date1);
+        let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        let rowNumber = diffDays+11;
+        console.log(diffTime, diffDays);
+
+        fetch('https://script.google.com/macros/s/AKfycbxP1awrSyw1lVp0INXH3Im_4lIym-LSuirGZlBcWEBUEVkJVPkVVsZRCcHHMVOWv82kpA/exec?cell='+buttonId+rowNumber+"&value="+value), {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Origin': 'http://localhost'
+            }
+        }
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+</script>
+
+</body>
+</html>

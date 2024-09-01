@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funky Weight Tracker v3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4, #ffecd2);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .container {
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            max-width: 90%;
+            width: 350px;
+        }
+        #weight-display {
+            font-family: 'Bangers', cursive;
+            font-size: 4.5rem;
+            margin-bottom: 1rem;
+            color: #FF1493;
+            text-shadow: 2px 2px 0px #FFD700;
+            animation: pulse 1.5s infinite alternate;
+        }
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+        .weight-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        button {
+            font-family: 'Bangers', cursive;
+            font-size: 1.5rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+        }
+        .weight-btn {
+            width: 60px;
+            height: 60px;
+            font-size: 2rem;
+            background-color: #00CED1;
+            color: white;
+            box-shadow: 0 4px 0px #008B8B;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .weight-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0px #008B8B;
+        }
+        .weight-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0px #008B8B;
+        }
+        .time-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+        .time-btn {
+            width: 100px;
+            height: 100px;
+            background-color: #FF69B4;
+            color: white;
+            box-shadow: 0 4px 0px #C71585;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0.5rem;
+            line-height: 1.2;
+        }
+        .time-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0px #C71585;
+        }
+        .time-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0px #C71585;
+        }
+        .time-btn.selected {
+            background-color: #32CD32;
+            box-shadow: 0 4px 0px #228B22;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="weight-display">100.00 kg</div>
+        <div class="weight-controls">
+            <button class="weight-btn" id="decrease-btn">-</button>
+            <button class="weight-btn" id="increase-btn">+</button>
+        </div>
+        <div class="time-buttons">
+            <button class="time-btn" data-time="before gym" onclick="sendPostRequest('B')">Before Gym</button>
+            <button class="time-btn" data-time="after gym" onclick="sendPostRequest('C')">After Gym</button>
+            <button class="time-btn" data-time="before sleep" onclick="sendPostRequest('D')">Before Sleep</button>
+        </div>
+    </div>
+
+    <script>
+        let weight = 100.00;
+        let selectedTime = null;
+        let intervalId = null;
+
+        const weightDisplay = document.getElementById('weight-display');
+        const decreaseBtn = document.getElementById('decrease-btn');
+        const increaseBtn = document.getElementById('increase-btn');
+        const timeButtons = document.querySelectorAll('.time-btn');
+
+        function updateWeightDisplay() {
+            weightDisplay.textContent = weight.toFixed(2) + ' kg';
+        }
+
+        function changeWeight(increment) {
+            weight = parseFloat((weight + increment).toFixed(3));
+            updateWeightDisplay();
+        }
+
+        function startIncrement() {
+            if (!intervalId) {
+                intervalId = setInterval(() => changeWeight(0.050), 100);
+            }
+        }
+
+        function startDecrement() {
+            if (!intervalId) {
+                intervalId = setInterval(() => changeWeight(-0.050), 100);
+            }
+        }
+
+        function stopChange() {
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+        }
+
+        function selectTime(time) {
+            selectedTime = time;
+            timeButtons.forEach(btn => {
+                if (btn.dataset.time === time) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+        }
+
+        increaseBtn.addEventListener('mousedown', startIncrement);
+        increaseBtn.addEventListener('touchstart', startIncrement);
+        increaseBtn.addEventListener('click', () => changeWeight(0.050));
+
+        decreaseBtn.addEventListener('mousedown', startDecrement);
+        decreaseBtn.addEventListener('touchstart', startDecrement);
+        decreaseBtn.addEventListener('click', () => changeWeight(-0.050));
+
+        document.addEventListener('mouseup', stopChange);
+        document.addEventListener('touchend', stopChange);
+
+        timeButtons.forEach(btn => {
+            btn.addEventListener('click', () => selectTime(btn.dataset.time));
+        });
+
+        function sendPostRequest(buttonId) {
+            let value = document.getElementById('weight-display').textContent;
+            value = value.replace(" kg", "");
+            let data = { buttonId: buttonId, value: value };
+            let date1 = new Date("2024-08-03");
+            let date2 = new Date();
+            let diffTime = Math.abs(date2 - date1);
+            let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            let rowNumber = diffDays+11;
+
+            fetch('https://script.google.com/macros/s/AKfycbxP1awrSyw1lVp0INXH3Im_4lIym-LSuirGZlBcWEBUEVkJVPkVVsZRCcHHMVOWv82kpA/exec?cell='+buttonId+rowNumber+"&value="+value), {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Origin': 'http://localhost'
+                }
+            }
+    }
+    </script>
+</body>
+</html>
