@@ -127,7 +127,7 @@
     </div>
 
     <script>
-        let weight = 100.00;
+        let weight = parseFloat(localStorage.getItem('weight')) || 100.00;
         let selectedTime = null;
         let intervalId = null;
 
@@ -142,6 +142,7 @@
 
         function changeWeight(increment) {
             weight = parseFloat((weight + increment).toFixed(3));
+            localStorage.setItem('weight', weight);
             updateWeightDisplay();
         }
 
@@ -215,6 +216,9 @@
                 console.error('Error:', error);
             });
     }
+
+    // Initialize the weight display on page load
+    updateWeightDisplay();
     </script>
 </body>
 </html>
